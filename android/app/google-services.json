@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "610705749488",
+    "project_id": "vk-shop-4e316",
+    "storage_bucket": "vk-shop-4e316.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:610705749488:android:8d36f4a54d0a0752da9935",
+        "android_client_info": {
+          "package_name": "com.example.vk_shop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_6JuFPqKQpJKguRyRfQFJoBlorfhDtC4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

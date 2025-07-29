@@ -1,0 +1,287 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:vk_shop/pages/home.dart';
+import 'package:vk_shop/pages/login.dart';
+import 'package:vk_shop/services/db.dart';
+import 'package:vk_shop/services/shared_pref.dart';
+import 'package:random_string/random_string.dart';
+import 'package:flutter_recaptcha_v2_compat/flutter_recaptcha_v2_compat.dart';
+
+class SingUp extends StatefulWidget {
+  const SingUp({super.key});
+
+  @override
+  State<SingUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SingUp> {
+  String? name, mail, phone, password;
+
+  TextEditingController namecontroller = new TextEditingController();
+  TextEditingController emailcontroller = new TextEditingController();
+  TextEditingController phonecontroller = new TextEditingController();
+  TextEditingController passwordcontroller = new TextEditingController();
+  final RecaptchaV2Controller recaptchaV2Controller = RecaptchaV2Controller();
+
+  bool _isRecaptchaVerified = false;
+
+  final _formkey = GlobalKey<FormState>();
+
+  registration() async {
+    if (password != null && name != null && mail != null) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: mail!, password: password!);
+
+        String id = randomAlphaNumeric(10);
+        await SharedpreferenceHelper().saveUserName(namecontroller.text);
+        await SharedpreferenceHelper().saveUserEmail(emailcontroller.text);
+        await SharedpreferenceHelper().saveUserPhone(phonecontroller.text);
+        await SharedpreferenceHelper().saveUserImage(
+            "https://firebasestorage.googleapis.com/v0/b/barberapp-ebcc1.appspot.com/o/icon1.png?alt=media&token=0fad24a5-a01b-4d67-b4a0-676fbc75b34a");
+        await SharedpreferenceHelper().saveUserId(id);
+  Map<String, dynamic> userInfoMap = {
+  "fullName": namecontroller.text,
+  "email": emailcontroller.text,
+  "phoneNumber": phonecontroller.text,
+  "userId": id,
+  "profileImageUrl":
+      "https://firebasestorage.googleapis.com/v0/b/barberapp-ebcc1.appspot.com/o/icon1.png?alt=media&token=0fad24a5-a01b-4d67-b4a0-676fbc75b34a"
+};
+
+        await DatabaseMethods().addUserDetails(userInfoMap, id);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Your membership has been created successfully",
+            style: TextStyle(fontSize: 20.0),
+          ),
+        ));
+        // ignore: use_build_context_synchronously
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+            "The password you entered is too weak",
+            style: TextStyle(fontSize: 20.0),
+          )));
+        } else if (e.code == 'email-already-in-use') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+            "You already have an account, please log in.",
+            style: TextStyle(fontSize: 20.0),
+          )));
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          child: Stack(
+            children: [
+              Container(
+                padding: EdgeInsets.only(
+                  top: 50.0,
+                  left: 30.0,
+                ),
+                height: MediaQuery.of(context).size.height / 2,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                  Color.fromARGB(255, 4, 82, 111),
+                  Color.fromARGB(255, 65, 130, 154),
+                  Color.fromARGB(255, 4, 82, 111)
+                ])),
+                child: Text(
+                  "Start your membership!",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32.0,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(
+                    top: 40.0, left: 30.0, right: 30.0, bottom: 30.0),
+                margin: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height / 4),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40))),
+                child: Form(
+                  key: _formkey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Full Name",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 4, 82, 111),
+                            fontSize: 23.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your full name';
+                          }
+                          return null;
+                        },
+                        controller: namecontroller,
+                        decoration: InputDecoration(
+                            hintText: "Enter your name",
+                            prefixIcon: Icon(Icons.person_outline)),
+                      ),
+                      SizedBox(
+                        height: 40.0,
+                      ),
+                      Text(
+                        "Email",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 4, 82, 111),
+                            fontSize: 23.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email address';
+                          }
+                          return null;
+                        },
+                        controller: emailcontroller,
+                        decoration: InputDecoration(
+                            hintText: "Enter your email address",
+                            prefixIcon: Icon(Icons.mail_outline)),
+                      ),
+                      SizedBox(
+                        height: 40.0,
+                      ),
+                      Text(
+                        "Phone",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 4, 82, 111),
+                            fontSize: 23.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your phone number';
+                          }
+                          return null;
+                        },
+                        controller: phonecontroller,
+                        decoration: InputDecoration(
+                            hintText: "Enter your phone number",
+                            prefixIcon: Icon(Icons.phone_android)),
+                      ),
+                      SizedBox(
+                        height: 40.0,
+                      ),
+                      Text(
+                        "Password",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 4, 82, 111),
+                            fontSize: 23.0,
+                            fontWeight: FontWeight.w500),
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please choose a strong password';
+                          }
+                          return null;
+                        },
+                        controller: passwordcontroller,
+                        decoration: InputDecoration(
+                          hintText: "Choose a strong password",
+                          prefixIcon: Icon(Icons.lock_outline),
+                        ),
+                        obscureText: true,
+                      ),
+                      SizedBox(
+                        height: 60.0,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          if (_formkey.currentState!.validate()) {
+                            setState(() {
+                              mail = emailcontroller.text;
+                              name = namecontroller.text;
+                              password = passwordcontroller.text;
+                            });
+                            registration();
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 10.0),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(colors: [
+                                Color.fromARGB(255, 4, 82, 111),
+                                Color.fromARGB(255, 35, 104, 130),
+                                Color.fromARGB(255, 4, 82, 111)
+                              ]),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Center(
+                              child: Text(
+                            "Sign Up",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold),
+                          )),
+                        ),
+                      ),
+                      SizedBox(height: 20.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Already have an account?",
+                            style: TextStyle(
+                                color: Colors.black54,
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => LogIn()));
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Log In",
+                              style: TextStyle(
+                                  color: Color.fromARGB(255, 4, 82, 111),
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
