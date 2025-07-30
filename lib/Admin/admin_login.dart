@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:vk_shop/Admin/booking_admin.dart';
-import 'package:vk_shop/Admin/booking_admin.dart';
+
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({super.key});
@@ -125,29 +125,32 @@ class _AdminLoginState extends State<AdminLogin> {
     );
   }
 
-  loginAdmin() {
-    FirebaseFirestore.instance.collection("Admin").get().then((snapshot) {
-      snapshot.docs.forEach((result) {
-        if (result.data()['id'] != usernamecontroller.text.trim())
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-              "Incorrect username",
-              style: TextStyle(fontSize: 20.0),
-            ),
-          ));
-        else if (result.data()['password'] !=
-            userpassswordcontroller.text.trim())
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-              "Incorrect password!",
-              style: TextStyle(fontSize: 20.0),
-            ),
-          ));
-        else {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => BookingAdmin()));
-        }
-      });
-    });
+ loginAdmin() async {
+  final snapshot = await FirebaseFirestore.instance
+      .collection("Admin")
+      .where("id", isEqualTo: usernamecontroller.text.trim())
+      .limit(1)
+      .get();
+
+  if (snapshot.docs.isEmpty) {
+    // No admin found
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Incorrect username", style: TextStyle(fontSize: 20.0))),
+    );
+    return;
   }
+
+  final adminData = snapshot.docs.first.data();
+  if (adminData['password'] != userpassswordcontroller.text.trim()) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Incorrect password!", style: TextStyle(fontSize: 20.0))),
+    );
+  } else {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BookingAdmin()),
+    );
+  }
+}
+
 }

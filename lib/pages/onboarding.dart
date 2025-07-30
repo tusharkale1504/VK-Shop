@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vk_shop/Admin/admin_login.dart';
 import 'package:vk_shop/pages/login.dart';
 
 class Onboarding extends StatefulWidget {
@@ -24,6 +25,7 @@ class _OnboardingState extends State<Onboarding> {
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => LogIn()));
+                        //  MaterialPageRoute(builder: (context) => AdminLogin()));
                   },
                   child: Container(
                     padding:

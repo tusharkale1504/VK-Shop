@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:vk_shop/services/db.dart';
 
 class BookingAdmin extends StatefulWidget {
@@ -11,157 +10,187 @@ class BookingAdmin extends StatefulWidget {
 }
 
 class _BookingAdminState extends State<BookingAdmin> {
-  Stream? BookingStream;
+  Stream? bookingStream;
 
-  getontheload() async {
-    BookingStream = await DatabaseMethods().getBooking();
+  getOnLoad() async {
+    bookingStream = await DatabaseMethods().getBooking();
     setState(() {});
   }
 
   @override
   void initState() {
-    getontheload();
+    getOnLoad();
     super.initState();
   }
 
   Widget allBookings() {
     return StreamBuilder(
-        stream: BookingStream,
-        builder: (context, AsyncSnapshot snapshot) {
-          return snapshot.hasData
-              ? ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: snapshot.data.docs.length,
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot ds = snapshot.data.docs[index];
-                    return Material(
-                      elevation: 8.0,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: EdgeInsets.all(10),
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            Color.fromARGB(255, 4, 82, 111),
-                            Color.fromARGB(255, 65, 130, 154),
-                            Color.fromARGB(255, 4, 82, 111)
-                          ]),
-                          borderRadius: BorderRadius.circular(20),
+      stream: bookingStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.data.docs.isEmpty) {
+          return Center(
+            child: Text(
+              "No Appointments Found",
+              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          itemCount: snapshot.data.docs.length,
+          itemBuilder: (context, index) {
+            DocumentSnapshot ds = snapshot.data.docs[index];
+            final data = ds.data() as Map<String, dynamic>;
+
+            return Card(
+              elevation: 6,
+              margin: EdgeInsets.only(bottom: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(255, 4, 82, 111),
+                      Color.fromARGB(255, 65, 130, 154),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Full Name & Service Row
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: (data["profileImage"] != null &&
+                                  data["profileImage"].toString().isNotEmpty)
+                              ? NetworkImage(data["profileImage"])
+                              : NetworkImage(
+                                  "https://via.placeholder.com/80"),
                         ),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(60),
-                                  child: Image.network(
-                                    ds["Profil_Resimi"],
-                                    height: 80,
-                                    width: 80,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            Text(
-                              "Service: " + ds["Servis"],
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              "Full Name: " + ds["Ad_Soyad"],
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              "Appointment Date: " + ds["Randevu_Tarihi"],
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5.0,
-                            ),
-                            Text(
-                              "Appointment Time: " + ds["Randevu_Saati"],
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                            GestureDetector(
-                              onTap: () async {
-                                await DatabaseMethods().DeleteBooking(ds.id);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 4, 82, 111),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Text(
-                                  "Done",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.bold),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                data["fullName"] ?? "N/A",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 20.0,
-                            ),
-                          ],
+                              SizedBox(height: 4),
+                              Text(
+                                data["service"] ?? "N/A",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+
+                    // Appointment details
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.calendar_today, color: Colors.white),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Date: ${data["bookingDate"] ?? "N/A"}",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                        Icon(Icons.access_time, color: Colors.white),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Time: ${data["bookingTime"] ?? "N/A"}",
+                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+
+                    // Status
+                    Text(
+                      "Status: ${data["status"] ?? "pending"}",
+                      style: TextStyle(
+                        color: Colors.yellowAccent,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+                    // Action Button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          await DatabaseMethods().DeleteBooking(ds.id);
+                        },
+                        icon: Icon(Icons.check_circle, color: Colors.white),
+                        label: Text(
+                          "Mark as Done",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                         ),
                       ),
-                    );
-                  })
-              : Container();
-        });
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: EdgeInsets.only(top: 60.0),
-        child: Column(
-          children: [
-            Center(
-              child: Text(
-                "Appointments",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              height: 30.0,
-            ),
-            Expanded(child: allBookings()),
-          ],
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 4, 82, 111),
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Appointments",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
+      body: allBookings(),
     );
   }
 }
