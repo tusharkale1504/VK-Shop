@@ -190,7 +190,7 @@ class _BookingAdminState extends State<BookingAdmin> {
           ),
         ),
       ),
-      body: allBookings(),
+      body: SafeArea(child: allBookings()),
     );
   }
 }

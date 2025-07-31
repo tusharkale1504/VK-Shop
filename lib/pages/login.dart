@@ -15,64 +15,67 @@ class LogIn extends StatefulWidget {
 
 class _LogInState extends State<LogIn> {
   String? mail, password;
-  TextEditingController emailcontroller = new TextEditingController();
-  TextEditingController passwordcontroller = new TextEditingController();
-  RecaptchaV2Controller recaptchaV2Controller = new RecaptchaV2Controller();
+  TextEditingController emailcontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  RecaptchaV2Controller recaptchaV2Controller = RecaptchaV2Controller();
   String? recaptchaToken;
 
   final _formkey = GlobalKey<FormState>();
 
- userLogin() async {
-  try {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: mail!,
-      password: password!,
-    );
-
-    // Save user email in SharedPreferences
-    await SharedpreferenceHelper().saveUserEmail(mail!);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Login Successful!")),
-    );
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => Home()),
-    );
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'user-not-found') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No user found with this email address!")),
+  userLogin() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: mail!,
+        password: password!,
       );
-    } else if (e.code == 'wrong-password') {
+
+      // Save user email in SharedPreferences
+      await SharedpreferenceHelper().saveUserEmail(mail!);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Incorrect password!")),
+        const SnackBar(content: Text("Login Successful!")),
       );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Home()),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("No user found with this email address!")),
+        );
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Incorrect password!")),
+        );
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
+    return SafeArea(
+      child: Scaffold(
+        body: Container(
           child: Stack(
             children: [
+              // Top gradient background with text
               Container(
                 padding: EdgeInsets.only(
                   top: 50.0,
                   left: 30.0,
                 ),
-                height: MediaQuery.of(context).size.height / 2,
+                height: MediaQuery.of(context).size.height / 2.5,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [
-                  Color.fromARGB(255, 4, 82, 111),
-                  Color.fromARGB(255, 65, 130, 154),
-                  Color.fromARGB(255, 4, 82, 111)
-                ])),
+                  gradient: LinearGradient(colors: [
+                    Color.fromARGB(255, 4, 82, 111),
+                    Color.fromARGB(255, 65, 130, 154),
+                    Color.fromARGB(255, 4, 82, 111),
+                  ]),
+                ),
                 child: Text(
                   "Hello\nSign In!",
                   style: TextStyle(
@@ -81,18 +84,21 @@ class _LogInState extends State<LogIn> {
                       fontWeight: FontWeight.bold),
                 ),
               ),
+
+              // White card container
               Container(
-                padding: EdgeInsets.only(
-                    top: 40.0, left: 30.0, right: 30.0, bottom: 30.0),
                 margin: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.height / 4),
+                    top: MediaQuery.of(context).size.height / 3.5),
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(40),
-                        topRight: Radius.circular(40))),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(40),
+                    topRight: Radius.circular(40),
+                  ),
+                ),
                 child: Form(
                   key: _formkey,
                   child: Column(
@@ -101,9 +107,10 @@ class _LogInState extends State<LogIn> {
                       Text(
                         "Email",
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 23.0,
-                            fontWeight: FontWeight.w500),
+                          color: Colors.black,
+                          fontSize: 23.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       TextFormField(
                         validator: (value) {
@@ -114,18 +121,18 @@ class _LogInState extends State<LogIn> {
                         },
                         controller: emailcontroller,
                         decoration: InputDecoration(
-                            hintText: "Enter your email address",
-                            prefixIcon: Icon(Icons.mail_outline)),
+                          hintText: "Enter your email address",
+                          prefixIcon: Icon(Icons.mail_outline),
+                        ),
                       ),
-                      SizedBox(
-                        height: 40.0,
-                      ),
+                      SizedBox(height: 30.0),
                       Text(
                         "Password",
                         style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 23.0,
-                            fontWeight: FontWeight.w500),
+                          color: Colors.black,
+                          fontSize: 23.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       TextFormField(
                         validator: (value) {
@@ -141,32 +148,33 @@ class _LogInState extends State<LogIn> {
                         ),
                         obscureText: true,
                       ),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
+                      SizedBox(height: 20.0),
+
+                      // Forgot Password link
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ForgotPassword()));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              "Forgot Password?",
-                              style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w500),
+                                  builder: (context) => ForgotPassword()),
+                            );
+                          },
+                          child: Text(
+                            "Forgot Password?",
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                      SizedBox(
-                        height: 60.0,
-                      ),
+
+                      Spacer(), // pushes button to bottom
+
+                      // Sign In Button
                       GestureDetector(
                         onTap: () {
                           if (_formkey.currentState!.validate()) {
@@ -178,57 +186,58 @@ class _LogInState extends State<LogIn> {
                           }
                         },
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 10.0),
-                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.symmetric(vertical: 12.0),
+                          width: double.infinity,
                           decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [
-                                Color.fromARGB(255, 4, 82, 111),
-                                Color.fromARGB(255, 35, 104, 130),
-                                Color.fromARGB(255, 4, 82, 111)
-                              ]),
-                              borderRadius: BorderRadius.circular(20)),
+                            gradient: LinearGradient(colors: [
+                              Color.fromARGB(255, 4, 82, 111),
+                              Color.fromARGB(255, 35, 104, 130),
+                              Color.fromARGB(255, 4, 82, 111),
+                            ]),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           child: Center(
-                              child: Text(
-                            "Sign In",
-                            style: TextStyle(
+                            child: Text(
+                              "Sign In",
+                              style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24.0,
-                                fontWeight: FontWeight.bold),
-                          )),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(height: 20.0),
+
+                      // Or Sign Up
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "Or",
+                            "Don't have an account? ",
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.w500),
                           ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SingUp()));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SingUp()),
+                              );
+                            },
+                            child: Text(
                               "Sign Up",
                               style: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 22.0,
+                                  color: Color.fromARGB(255, 4, 82, 111),
+                                  fontSize: 20.0,
                                   fontWeight: FontWeight.bold),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

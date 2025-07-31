@@ -73,140 +73,142 @@ class _MyBookingsState extends State<MyBookings> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("My Bookings"),
-        centerTitle: true,
-        backgroundColor: Color(0xFF04526F),
-        elevation: 0,
-      ),
-      body: RefreshIndicator(
-        onRefresh: fetchBookings,
-        child: isLoading
-            ? Center(child: CircularProgressIndicator(color: Color(0xFF04526F)))
-            : bookings.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: EdgeInsets.all(16),
-                    itemCount: bookings.length,
-                    itemBuilder: (context, index) {
-                      final booking = bookings[index];
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF04526F), Color(0xFF2C7C91)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 6,
-                              offset: Offset(2, 4),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("My Bookings"),
+          centerTitle: true,
+          backgroundColor: Color(0xFF04526F),
+          elevation: 0,
+        ),
+        body: RefreshIndicator(
+          onRefresh: fetchBookings,
+          child: isLoading
+              ? Center(child: CircularProgressIndicator(color: Color(0xFF04526F)))
+              : bookings.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.builder(
+                      padding: EdgeInsets.all(16),
+                      itemCount: bookings.length,
+                      itemBuilder: (context, index) {
+                        final booking = bookings[index];
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF04526F), Color(0xFF2C7C91)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Service Title + Status
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    booking["service"] ?? "Unknown Service",
-                                    style: TextStyle(
-                                      color: Colors.orangeAccent,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      // color: _getStatusColor(
-                                      //         booking["status"] ?? "pending")
-                                          // .withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      booking["status"] ?? "Pending",
-                                      style: TextStyle(
-                                        // color: _getStatusColor(
-                                        //     booking["status"] ?? "pending"),
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-
-                              // Date & Time
-                              Row(
-                                children: [
-                                  Icon(Icons.calendar_today,
-                                      color: Colors.white70, size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    booking["bookingDate"] ?? "No Date",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Icon(Icons.access_time,
-                                      color: Colors.white70, size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    booking["bookingTime"] ?? "No Time",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-
-                              // Contact Info
-                              Row(
-                                children: [
-                                  Icon(Icons.phone,
-                                      color: Colors.white70, size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    booking["phoneNumber"] ?? "N/A",
-                                    style: TextStyle(
-                                        color: Colors.white70, fontSize: 15),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Icon(Icons.email,
-                                      color: Colors.white70, size: 20),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    booking["email"] ?? "N/A",
-                                    style: TextStyle(
-                                        color: Colors.white70, fontSize: 15),
-                                  ),
-                                ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 6,
+                                offset: Offset(2, 4),
                               ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Service Title + Status
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      booking["service"] ?? "Unknown Service",
+                                      style: TextStyle(
+                                        color: Colors.orangeAccent,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        // color: _getStatusColor(
+                                        //         booking["status"] ?? "pending")
+                                            // .withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        booking["status"] ?? "Pending",
+                                        style: TextStyle(
+                                          // color: _getStatusColor(
+                                          //     booking["status"] ?? "pending"),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+      
+                                // Date & Time
+                                Row(
+                                  children: [
+                                    Icon(Icons.calendar_today,
+                                        color: Colors.white70, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      booking["bookingDate"] ?? "No Date",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time,
+                                        color: Colors.white70, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      booking["bookingTime"] ?? "No Time",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+      
+                                // Contact Info
+                                Row(
+                                  children: [
+                                    Icon(Icons.phone,
+                                        color: Colors.white70, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      booking["phoneNumber"] ?? "N/A",
+                                      style: TextStyle(
+                                          color: Colors.white70, fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Icon(Icons.email,
+                                        color: Colors.white70, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      booking["email"] ?? "N/A",
+                                      style: TextStyle(
+                                          color: Colors.white70, fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+        ),
       ),
     );
   }

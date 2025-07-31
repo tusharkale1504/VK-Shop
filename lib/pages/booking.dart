@@ -152,122 +152,124 @@ class _BookingState extends State<Booking> {
       );
     }
 
-    return Scaffold(
-      extendBody: true, // ✅ gradient flows behind nav bar
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF04364F), Color(0xFF407C91), Color(0xFF04526F)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return SafeArea(
+      child: Scaffold(
+        extendBody: true, // ✅ gradient flows behind nav bar
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF04364F), Color(0xFF407C91), Color(0xFF04526F)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back Button
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    color: Colors.white,
-                    size: 30.0,
-                  ),
-                ),
-                SizedBox(height: 20.0),
-
-                // Header
-                Text(
-                  "Book Your\nAppointment",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 20.0),
-
-                // Service Image
-                Center(
-                  child: Container(
-                    height: 180,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      image: DecorationImage(
-                        image: AssetImage("images/discount.png"),
-                        fit: BoxFit.cover,
-                      ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Back Button
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: Colors.white,
+                      size: 30.0,
                     ),
                   ),
-                ),
-                SizedBox(height: 20.0),
-
-                // Service Title
-                Center(
-                  child: Text(
-                    widget.service,
+                  SizedBox(height: 20.0),
+      
+                  // Header
+                  Text(
+                    "Book Your\nAppointment",
                     style: TextStyle(
-                      color: Colors.orange[300],
-                      fontSize: 26.0,
+                      color: Colors.white,
+                      fontSize: 28.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                SizedBox(height: 25.0),
-
-                // Date Card
-                _buildSelectionCard(
-                  title: "Select Date",
-                  icon: Icons.calendar_today,
-                  value:
-                      "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
-                  onTap: () => _selectDate(context),
-                ),
-                SizedBox(height: 20.0),
-
-                // Time Card
-                _buildSelectionCard(
-                  title: "Select Time",
-                  icon: Icons.access_time,
-                  value: _selectedTime.format(context),
-                  onTap: () => _selectTime(context),
-                ),
-                SizedBox(height: 30.0),
-
-                // Book Button
-                GestureDetector(
-                  onTap: () => _checkAndBookAppointment(context),
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 16.0,
-                      horizontal: 25.0,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFfe8f33), Color(0xFFfd6d20)],
-                      ),
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "Book Appointment",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22.0,
-                          fontWeight: FontWeight.bold,
+                  SizedBox(height: 20.0),
+      
+                  // Service Image
+                  Center(
+                    child: Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20.0),
+                        image: DecorationImage(
+                          image: AssetImage("images/discount.png"),
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 20.0),
+      
+                  // Service Title
+                  Center(
+                    child: Text(
+                      widget.service,
+                      style: TextStyle(
+                        color: Colors.orange[300],
+                        fontSize: 26.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 25.0),
+      
+                  // Date Card
+                  _buildSelectionCard(
+                    title: "Select Date",
+                    icon: Icons.calendar_today,
+                    value:
+                        "${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
+                    onTap: () => _selectDate(context),
+                  ),
+                  SizedBox(height: 20.0),
+      
+                  // Time Card
+                  _buildSelectionCard(
+                    title: "Select Time",
+                    icon: Icons.access_time,
+                    value: _selectedTime.format(context),
+                    onTap: () => _selectTime(context),
+                  ),
+                  SizedBox(height: 30.0),
+      
+                  // Book Button
+                  GestureDetector(
+                    onTap: () => _checkAndBookAppointment(context),
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16.0,
+                        horizontal: 25.0,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFFfe8f33), Color(0xFFfd6d20)],
+                        ),
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Book Appointment",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 22.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
