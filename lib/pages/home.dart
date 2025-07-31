@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vk_shop/pages/booking.dart';
+import 'package:vk_shop/pages/my_bookings.dart';
 import 'package:vk_shop/services/shared_pref.dart';
 
 class Home extends StatefulWidget {
@@ -11,6 +12,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String? name, image;
+  final TextEditingController _searchController = TextEditingController();
 
   getthedatafromsharedpref() async {
     name = await SharedpreferenceHelper().getUserName();
@@ -55,20 +57,29 @@ class _HomeState extends State<Home> {
             children: [
               // Header Section
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Hello,",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.w500)),
+                        Row(
+                          children: [
+                            Text("Hello, ",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500)),
+                            Text("👋",
+                                style: TextStyle(
+                                  fontSize: 22,
+                                )),
+                          ],
+                        ),
                         SizedBox(height: 5),
-                        Text(name ?? "",
+                        Text(name ?? "Guest",
                             style: TextStyle(
                                 color: Colors.orangeAccent,
                                 fontSize: 26,
@@ -77,18 +88,60 @@ class _HomeState extends State<Home> {
                     ),
                     CircleAvatar(
                       radius: 32,
-                      backgroundImage:
-                          (image != null && image!.isNotEmpty)
-                              ? NetworkImage(image!)
-                              : AssetImage("images/profile.png") as ImageProvider,
+                      backgroundImage: (image != null && image!.isNotEmpty)
+                          ? NetworkImage(image!)
+                          : AssetImage("images/profile.png") as ImageProvider,
                     )
                   ],
                 ),
               ),
+              // Search Bar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Search for a service...",
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      icon: Icon(Icons.search, color: Colors.grey[700]),
+                    ),
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+
+              // Categories (Horizontal Scroll)
+              Container(
+                height: 50,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  children: [
+                    _buildCategoryChip("All"),
+                    _buildCategoryChip("Hair"),
+                    _buildCategoryChip("Beard"),
+                    _buildCategoryChip("Kids"),
+                    _buildCategoryChip("Facial"),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
 
               // Section Title
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
                 child: Text(
                   "Our Services",
                   style: TextStyle(
@@ -119,17 +172,24 @@ class _HomeState extends State<Home> {
                       childAspectRatio: 0.9,
                     ),
                     itemBuilder: (context, index) {
+                      String serviceName = services[index]["title"]!;
+                      if (_searchController.text.isNotEmpty &&
+                          !serviceName.toLowerCase().contains(
+                              _searchController.text.toLowerCase())) {
+                        return SizedBox.shrink();
+                      }
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Booking(
-                                  service: services[index]["title"]!),
+                              builder: (context) =>
+                                  Booking(service: serviceName),
                             ),
                           );
                         },
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [Color(0xFF04526F), Color(0xFF407C91)],
@@ -156,7 +216,7 @@ class _HomeState extends State<Home> {
                               ),
                               SizedBox(height: 15),
                               Text(
-                                services[index]["title"]!,
+                                serviceName,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
@@ -174,6 +234,41 @@ class _HomeState extends State<Home> {
               ),
             ],
           ),
+        ),
+      ),
+      // Floating Action Button for My Bookings
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Color(0xFFfd6d20),
+        icon: Icon(Icons.calendar_month),
+        label: Text("My Bookings"),
+        onPressed: () {
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MyBookings(),
+            ),
+          );
+       
+        },
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String label) {
+    return Container(
+      margin: EdgeInsets.only(right: 10),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFfe8f33), Color(0xFFfd6d20)],
+        ),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );

@@ -17,9 +17,10 @@ class SharedpreferenceHelper {
     return prefs.setString(userNameKey, getUserName);
   }
 
-  Future<bool> saveUserEmail(String getUSerEmail) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.setString(userEmailKey, getUSerEmail);
+  Future<void> saveUserEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(userEmailKey, email);
+    print("✅ Saved email: $email");
   }
 
   Future<bool> saveUserPhone(String getUSerPhone) async {
@@ -43,8 +44,10 @@ class SharedpreferenceHelper {
   }
 
   Future<String?> getUserEmail() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(userEmailKey);
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString(userEmailKey);
+    print("🔍 Fetched email: ${email ?? '❌ None'}");
+    return email;
   }
 
   Future<String?> getUserPhone() async {
@@ -57,4 +60,9 @@ class SharedpreferenceHelper {
     return prefs.getString(userImageKey);
   }
 
+  Future<void> clearUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(userEmailKey);
+    print("🗑️ User email cleared");
+  }
 }

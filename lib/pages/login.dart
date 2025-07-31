@@ -4,6 +4,7 @@ import 'package:vk_shop/pages/home.dart';
 import 'package:vk_shop/pages/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_recaptcha_v2_compat/flutter_recaptcha_v2_compat.dart';
+import 'package:vk_shop/services/shared_pref.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -21,28 +22,36 @@ class _LogInState extends State<LogIn> {
 
   final _formkey = GlobalKey<FormState>();
 
-  userLogin() async {
-    try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: mail!, password: password!);
-      // ignore: use_build_context_synchronously
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-          "No user found with this email address!",
-          style: TextStyle(fontSize: 18.0, color: Colors.black),
-        )));
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-          "Incorrect password!",
-          style: TextStyle(fontSize: 18.0, color: Colors.black),
-        )));
-      }
+ userLogin() async {
+  try {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: mail!,
+      password: password!,
+    );
+
+    // Save user email in SharedPreferences
+    await SharedpreferenceHelper().saveUserEmail(mail!);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Login Successful!")),
+    );
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => Home()),
+    );
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'user-not-found') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No user found with this email address!")),
+      );
+    } else if (e.code == 'wrong-password') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Incorrect password!")),
+      );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
