@@ -41,7 +41,7 @@ class _MyBookingsState extends State<MyBookings> {
 
   try {
     Query query = FirebaseFirestore.instance
-        .collection("Bookings")
+        .collection("Booking")
         .where("email", isEqualTo: userEmail);
 
     try {
