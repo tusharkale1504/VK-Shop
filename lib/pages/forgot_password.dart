@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Needed for checking email existence
 import 'package:vk_shop/pages/login.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -13,25 +14,58 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   TextEditingController mailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  /// ✅ Check if email exists in Firestore
+  Future<bool> checkUserExists(String email) async {
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection("users") // 🔹 Change to your collection name
+          .where("email", isEqualTo: email.toLowerCase().trim())
+          .limit(1)
+          .get();
+
+      return userSnapshot.docs.isNotEmpty;
+    } catch (e) {
+      print("❌ Firestore check failed: $e");
+      return false;
+    }
+  }
+
   void resetPassword() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        await FirebaseAuth.instance
-            .sendPasswordResetEmail(email: mailController.text.trim());
+      final email = mailController.text.trim();
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("⏳ Checking email..."),
+        duration: Duration(seconds: 2),
+      ));
+
+      bool exists = await checkUserExists(email);
+
+      if (!exists) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
-            "A password reset link has been sent to your email address!",
-            style: TextStyle(fontSize: 20.0),
+            "No user found with this email address!",
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ));
+        return;
+      }
+
+      try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "✅ A password reset link has been sent to your email!",
+            style: TextStyle(fontSize: 18.0),
           ),
         ));
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(
-            "No user found with this email address!",
-            style: TextStyle(fontSize: 20.0),
-          )));
-        }
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "❌ Error: ${e.message}",
+            style: TextStyle(fontSize: 18.0),
+          ),
+        ));
       }
     }
   }
@@ -43,6 +77,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         body: Container(
           child: Stack(
             children: [
+              // 🔹 Top Gradient Header
               Container(
                 padding: EdgeInsets.only(top: 50.0, left: 30.0),
                 height: MediaQuery.of(context).size.height / 2,
@@ -66,6 +101,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                 ),
               ),
+
+              // 🔹 Form Card
               Container(
                 padding: EdgeInsets.only(
                     top: 40.0, left: 30.0, right: 30.0, bottom: 30.0),
@@ -96,6 +133,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your email address';
                           }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                              .hasMatch(value)) {
+                            return 'Enter a valid email address';
+                          }
                           return null;
                         },
                         decoration: InputDecoration(
@@ -103,12 +144,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             prefixIcon: Icon(Icons.mail_outline)),
                       ),
                       SizedBox(height: 40.0),
+
+                      // 🔹 Reset Button
                       GestureDetector(
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            resetPassword();
-                          }
-                        },
+                        onTap: resetPassword,
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 10.0),
                           width: MediaQuery.of(context).size.width,
@@ -131,6 +170,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         ),
                       ),
                       Spacer(),
+
+                      // 🔹 Back to Login
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -145,8 +186,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => LogIn()));
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => LogIn()));
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
